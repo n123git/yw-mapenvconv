@@ -1,5 +1,5 @@
 # yw-mapenvconv
-A tool to convert Yo-kai Watch 2 mapenv files to Yo-kai Watch 3. Support for other games, mamely YWB (Yo-kai Watch Blasters) and YW1 is planned!
+A tool to convert Yo-kai Watch 2 mapenv files to Yo-kai Watch 3 or Yo-kai Watch Blasters. Support for other games, namely YWB2 (Yo-kai Watch Busters 2) and YW1 is planned!
 
 To run it either:
 * [Visit the website :P](http://n123git.github.io/yw-mapenvconv)
