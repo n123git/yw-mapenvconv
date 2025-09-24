@@ -664,20 +664,34 @@ function generateValues(yw2, labels){
 }
 
 // NOTE: This computes CRC from the 2nd PTREE token in the first MAP_ENV path (e.g. "t101i01")
-function buildNestedInfoSequenceYW3(map, values){
-  // compute crc32 from the 2nd token of the first MAP_ENV path (the PTREE token)
+function buildNestedInfoSequenceYW3(map, values) {
+  // compute crc from the 2nd PTREE token of the first MAP_ENV path
   let crcSource = null;
-  for(const key of map.keys()){
+  for (const key of map.keys()) {
     const up = key.toUpperCase();
-    if(up.startsWith('MAP_ENV/')){
+    if (up.startsWith('MAP_ENV/')) {
       const parts = key.split('/').filter(Boolean);
-      if(parts.length >= 2){
-        // parts[1] is the PTREE token (e.g. "t101i01")
-        crcSource = parts[1];
+      if (parts.length >= 2) {
+        crcSource = parts[1]; // second token
         break;
       }
     }
   }
+
+  const crc = crc32str(crcSource);
+
+  // Sequence: LIST_BEG, MAP_ENV_INFO, CNF_LIST_BEG, MAP_ENV_INFO_CNF, CNF_LIST_END, LIST_END
+  const seq = [];
+  seq.push({ Name: 'MAP_ENV_INFO_LIST_BEG', Values: [{ Type: 1, Value: 1 }] });
+  seq.push({ Name: 'MAP_ENV_INFO', Values: [{ Type: 1, Value: crc }] });
+  seq.push({ Name: 'MAP_ENV_INFO_CNF_LIST_BEG', Values: [{ Type: 1, Value: 1 }] });
+  seq.push({ Name: 'MAP_ENV_INFO_CNF', Values: values });
+  seq.push({ Name: 'MAP_ENV_INFO_CNF_LIST_END', Values: [] });
+  seq.push({ Name: 'MAP_ENV_INFO_LIST_END', Values: [] });
+
+  return seq;
+}
+
 
 function buildNestedInfoSequence(map, values) {
   const mode = document.getElementById('convert-mode').value;
@@ -686,8 +700,8 @@ function buildNestedInfoSequence(map, values) {
     : buildNestedInfoSequenceYW3(map, values);
 }
 
-function buildNestedInfoSequenceYWB(map, values) { // wrapper for now
-  return buildNestedInfoSequenceYW3(map, values);
+function buildNestedInfoSequenceYWB(map, values) {
+  return buildNestedInfoSequenceYW3(map, values); // wrapper for now
 }
 
   const crc = crc32str(crcSource);
