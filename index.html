@@ -275,12 +275,6 @@ const LABELS_YWB = [
   "BgImgL??"
 ];
 
-
-const mode = document.getElementById('convert-mode').value;
-const labels = mode === 'ywb' ? LABELS_YWB : LABELS_YW3;
-const { values, map } = generateValues("yw2", labels);
-buildNestedInfoSequence(map, values)
-
 // ---- utils ----
 function readJsonFile(file) {
   return new Promise((resolve, reject) => {
@@ -712,28 +706,36 @@ function buildNestedInfoSequenceYWB(map, values) { // wrapper for now
 
 
 // UI handler
-async function handleConvert(){
+async function handleConvert() {
   const f = document.getElementById('file-yw2').files[0];
-  if(!f){ alert('Please select a yw2 JSON file'); return; }
+  if (!f) { alert('Please select a yw2 JSON file'); return; }
 
-  try{
+  try {
     const yw2 = await readJsonFile(f);
-    if(!Array.isArray(yw2)) throw new Error('Unexpected file format: expected top-level array of nodes');
+    if (!Array.isArray(yw2)) throw new Error('Unexpected file format: expected top-level array of nodes');
 
-    const { values, map } = generateValues(yw2);
+    // --- RUN THIS LAST ---
+    const mode = document.getElementById('convert-mode').value;
+    const labels = mode === 'ywb' ? LABELS_YWB : LABELS_YW3;
+    const { values, map } = generateValues(yw2, labels);
     const seq = buildNestedInfoSequence(map, values);
 
     const blob = new Blob([JSON.stringify(seq, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const dl = document.getElementById('download');
-    dl.href = url; dl.download = f.name.replace(/\.json$/,'') + '-to-yw3.json'; dl.style.display = 'inline'; dl.textContent = 'Download converted JSON';
+    dl.href = url;
+    dl.download = f.name.replace(/\.json$/, '') + '-to-' + mode + '.json';
+    dl.style.display = 'inline';
+    dl.textContent = 'Download converted JSON';
 
-    document.getElementById('preview').textContent = 'Converted preview:\n' + JSON.stringify(seq, null, 2).slice(0, 1000) + '...';
-  } catch(err){
+    document.getElementById('preview').textContent =
+      'Converted preview:\n' + JSON.stringify(seq, null, 2).slice(0, 1000) + '...';
+  } catch (err) {
     alert('Error: ' + (err && err.message ? err.message : String(err)));
     console.error(err);
   }
 }
+
 
 document.getElementById('convert').addEventListener('click', handleConvert);
 </script>
