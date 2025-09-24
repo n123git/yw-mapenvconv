@@ -19,46 +19,6 @@
 
 <script>
 
-
-const mode = document.getElementById('convert-mode').value;
-const labels = mode === 'ywb' ? LABELS_YWB : LABELS_YW3;
-const { values, map } = generateValues(yw2, labels);
-const seq = mode === 'ywb'
-  ? buildNestedInfoSequenceYWB(map, values)
-  : buildNestedInfoSequenceYW3(map, values);
-
-// ---- utils ----
-function readJsonFile(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try { resolve(JSON.parse(reader.result)); }
-      catch (e) { reject(new Error('Failed to parse JSON: ' + e.message)); }
-    };
-    reader.onerror = () => reject(new Error('Failed to read file.'));
-    reader.readAsText(file);
-  });
-}
-
-// CRC32 utility (UTF-8)
-const CRC32_TABLE = (function(){
-  const t = new Uint32Array(256);
-  for(let i=0;i<256;i++){
-    let c=i;
-    for(let j=0;j<8;j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-    t[i]=c>>>0;
-  }
-  return t;
-})();
-function crc32str(s){
-  if(s == null) return 0;
-  const enc = new TextEncoder();
-  const bytes = enc.encode(String(s));
-  let crc = 0xFFFFFFFF;
-  for(const b of bytes) crc = (crc >>> 8) ^ CRC32_TABLE[(crc ^ b) & 0xFF];
-  return (crc ^ 0xFFFFFFFF) >>> 0;
-}
-
 // --- labels ---
 const LABELS_YW3 = [ /* yes yw2 is the official acronym :> */
   "ActivationCond|False",
@@ -314,6 +274,46 @@ const LABELS_YWB = [
   "BgImgK??",
   "BgImgL??"
 ];
+
+
+const mode = document.getElementById('convert-mode').value;
+const labels = mode === 'ywb' ? LABELS_YWB : LABELS_YW3;
+const { values, map } = generateValues(yw2, labels);
+const seq = mode === 'ywb'
+  ? buildNestedInfoSequenceYWB(map, values)
+  : buildNestedInfoSequenceYW3(map, values);
+
+// ---- utils ----
+function readJsonFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try { resolve(JSON.parse(reader.result)); }
+      catch (e) { reject(new Error('Failed to parse JSON: ' + e.message)); }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file.'));
+    reader.readAsText(file);
+  });
+}
+
+// CRC32 utility (UTF-8)
+const CRC32_TABLE = (function(){
+  const t = new Uint32Array(256);
+  for(let i=0;i<256;i++){
+    let c=i;
+    for(let j=0;j<8;j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i]=c>>>0;
+  }
+  return t;
+})();
+function crc32str(s){
+  if(s == null) return 0;
+  const enc = new TextEncoder();
+  const bytes = enc.encode(String(s));
+  let crc = 0xFFFFFFFF;
+  for(const b of bytes) crc = (crc >>> 8) ^ CRC32_TABLE[(crc ^ b) & 0xFF];
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
 
 // Build a hierarchical map from PTREE/PTVAL entries
 function buildPathMap(yw2){
