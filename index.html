@@ -693,32 +693,16 @@ function buildNestedInfoSequenceYW3(map, values) {
 }
 
 
+function buildNestedInfoSequenceYWB(map, values) {
+  return buildNestedInfoSequenceYW3(map, values); // wrapper for now
+}
+
 function buildNestedInfoSequence(map, values) {
   const mode = document.getElementById('convert-mode').value;
   return mode === 'ywb'
     ? buildNestedInfoSequenceYWB(map, values)
     : buildNestedInfoSequenceYW3(map, values);
 }
-
-function buildNestedInfoSequenceYWB(map, values) {
-  return buildNestedInfoSequenceYW3(map, values); // wrapper for now
-}
-
-  const crc = crc32str(crcSource);
-
-  // Sequence: LIST_BEG, MAP_ENV_INFO, CNF_LIST_BEG, MAP_ENV_INFO_CNF, CNF_LIST_END, LIST_END
-  const seq = [];
-  seq.push({ Name: 'MAP_ENV_INFO_LIST_BEG', Values: [ { Type: 1, Value: 1 } ] });
-  seq.push({ Name: 'MAP_ENV_INFO', Values: [ { Type: 1, Value: crc } ] });
-  seq.push({ Name: 'MAP_ENV_INFO_CNF_LIST_BEG', Values: [ { Type: 1, Value: 1 } ] });
-  seq.push({ Name: 'MAP_ENV_INFO_CNF', Values: values });
-  seq.push({ Name: 'MAP_ENV_INFO_CNF_LIST_END', Values: [] });
-  seq.push({ Name: 'MAP_ENV_INFO_LIST_END', Values: [] });
-
-  return seq;
-}
-
-
 // UI handler
 async function handleConvert() {
   const f = document.getElementById('file-yw2').files[0];
